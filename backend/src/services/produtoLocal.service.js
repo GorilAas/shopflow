@@ -4,8 +4,12 @@ const validar = ({ nome, descricao, preco, estoque }) => {
   if (!nome || !descricao || preco == null || estoque == null) {
     throw new Error('Campos obrigatórios: nome, descricao, preco, estoque');
   }
-  if (preco < 0) throw new Error('Preço não pode ser negativo');
-  if (estoque < 0) throw new Error('Estoque não pode ser negativo');
+  if (preco < 0) {
+    throw new Error('Preço não pode ser negativo');
+  }
+  if (estoque < 0) {
+    throw new Error('Estoque não pode ser negativo');
+  }
 };
 
 const criar = async (dados) => {
@@ -19,7 +23,9 @@ const buscarTodos = async () => {
 
 const buscarPorId = async (id) => {
   const produto = await produtoLocalRepository.buscarPorId(id);
-  if (!produto) throw new Error('Produto não encontrado');
+  if (!produto) {
+    throw new Error('Produto não encontrado');
+  }
   return produto;
 };
 

@@ -1,5 +1,5 @@
-import prisma from '../prisma.js';
 import pedidoRepository from '../repositories/pedido.repository.js';
+import anuncioRepository from '../repositories/anuncio.repository.js';
 
 const FORMAS_DE_PAGAMENTO = ['PIX', 'CARTAO', 'BOLETO'];
 
@@ -17,17 +17,20 @@ const criar = async (dados) => {
   validar(dados);
 
   const ItemComDados = await Promise.all(dados.itens.map(async (item) => {
-    const produto = await prisma.produtoLocal.findUnique({ where: { id: item.produtoId } });
-    if (!produto) {
-      throw new Error(`Produto com ID ${item.produtoId} não encontrado`);
+    const anuncio = await anuncioRepository.buscarPorProdutoExterno(item.produtoExternoId);
+    if (!anuncio) {
+      throw new Error(`Produto ${item.produtoExternoId} não possui anúncio cadastrado`);
     }
-    if (produto.estoque < item.quantidade) {
-      throw new Error(`Estoque insuficiente para o produto ${produto.nome}`);
+    if (!anuncio.produtoLocal) {
+      throw new Error(`Anúncio ${anuncio.id} não está vinculado a um produto local`);
+    }
+    if (anuncio.produtoLocal.estoque < item.quantidade) {
+      throw new Error(`Estoque insuficiente para o produto ${anuncio.produtoLocal.nome}`);
     }
     return {
-      produtoId: item.produtoId,
-      nomeProduto: produto.nome,
-      precoUnit: produto.preco,
+      produtoId: anuncio.produtoLocal.id,
+      nomeProduto: anuncio.produtoLocal.nome,
+      precoUnit: anuncio.produtoLocal.preco,
       quantidade: item.quantidade,
     };
   }));
