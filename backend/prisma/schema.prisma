@@ -1,14 +1,99 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ProdutoLocal {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  descricao   String
+  preco       Float
+  estoque     Int
+  imagem      String?
+  ativo       Boolean   @default(true)
+  criadoEm    DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  itensPedido   ItemPedido[]
+  movimentacoes MovimentacaoEstoque[]
+  anuncio       Anuncio?
+  
+  @@map("produtos")
+}
+
+model Anuncio {
+  id     Int      @id @default(autoincrement())
+  produtoExternoId Int  @unique
+  nome    String
+  descricao String
+  preco   Float
+  imagem  String?
+  ativo   Boolean   @default(true)
+  importadoEm  DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  produtoLocalId Int?  @unique
+  produtoLocal   ProdutoLocal? @relation(fields: [produtoLocalId], references: [id])
+
+  @@map("anuncios")
+}
+
+model Pedido {
+  id          Int      @id @default(autoincrement())
+  numeroPedido String   @unique @default(uuid())
+  nomeCliente String
+  email       String
+  endereco    String
+  formaPagamento String
+  status     String   @default("PENDENTE")
+  criadoEm   DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  itensPedido ItemPedido[]
+  historicos  HistoricoStatusPedido[]
+
+  @@map("pedidos")
+}
+
+model HistoricoStatusPedido {
+  id          Int      @id @default(autoincrement())
+  status      String
+  criadoEm    DateTime @default(now())
+
+  pedidoId    Int
+  pedido      Pedido @relation(fields: [pedidoId], references: [id])
+
+  @@map("historico_status_pedido")
+}
+
+model ItemPedido {
+  id          Int      @id @default(autoincrement())
+  quantidade  Int
+  precoUnit   Float
+  nomeProduto String
+
+  pedidoId    Int
+  pedido      Pedido   @relation(fields: [pedidoId], references: [id])
+
+  produtoId   Int
+  produto     ProdutoLocal  @relation(fields: [produtoId], references: [id])
+
+  @@map("itens_pedido")
+}
+
+model MovimentacaoEstoque {
+  id          Int      @id @default(autoincrement())
+  tipo        String
+  quantidade  Int
+  motivo      String
+  criadoEm    DateTime @default(now())
+
+  produtoId   Int
+  produto     ProdutoLocal  @relation(fields: [produtoId], references: [id])
+
+  @@map("movimentacoes_estoque")
 }
