@@ -33,11 +33,25 @@ const buscarPorId = async (id) => {
 
 const vincularProdutoLocal = async (id, produtoLocalId) => {
   await buscarPorId(id);
-  const produto = await produtoLocalRepository.buscarPorId(produtoLocalId);
-  if (!produto){
-    throw new Error('Produto local não encontrado');
+  
+  if (produtoLocalId) {
+    const produto = await produtoLocalRepository.buscarPorId(produtoLocalId);
+    if (!produto){
+      throw new Error('Produto local não encontrado');
+    }
   }
+  
   return anuncioRepository.vincularProdutoLocal(id, produtoLocalId);
 };
 
-export default { importar, buscarTodos, buscarPorId, vincularProdutoLocal };
+const atualizar = async (id, dados) => {
+  await buscarPorId(id);
+  return anuncioRepository.atualizar(id, dados);
+};
+
+const deletar = async (id) => {
+  await buscarPorId(id);
+  return anuncioRepository.deletar(id);
+};
+
+export default { importar, buscarTodos, buscarPorId, vincularProdutoLocal, atualizar, deletar };

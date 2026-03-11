@@ -39,6 +39,10 @@ const criar = async (dados) => {
   return { numeroPedido:pedido.numeroPedido };
 };
 
+const buscarTodos = async () => {
+  return pedidoRepository.buscarTodos();
+};
+
 const buscarPorId = async (id) => {
   const pedido = await pedidoRepository.buscarPorId(id);
   if (!pedido) {
@@ -60,4 +64,14 @@ const atualizarStatus = async (id, status) => {
   return pedidoRepository.atualizarStatus(id, status.toUpperCase());
 };
 
-export default { criar, buscarPorId, atualizarStatus };
+const atualizar = async (id, dados) => {
+  await buscarPorId(id);
+  return pedidoRepository.atualizar(id, dados);
+};
+
+const deletar = async (id) => {
+  await buscarPorId(id);
+  return pedidoRepository.deletar(id);
+};
+
+export default { criar, buscarTodos, buscarPorId, atualizarStatus, atualizar, deletar };

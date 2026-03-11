@@ -35,4 +35,16 @@ const vincularProdutoLocal = async (id, produtoLocalId) => {
   });
 };
 
-export default { criar, buscarTodos, buscarPorId, buscarPorProdutoExterno, vincularProdutoLocal };
+const atualizar = async (id, dados) => {
+  return prisma.anuncio.update({
+    where: { id },
+    data: dados,
+    include: { produtoLocal: true }
+  });
+};
+
+const deletar = async (id) => {
+  return prisma.anuncio.delete({ where: { id } });
+};
+
+export default { criar, buscarTodos, buscarPorId, buscarPorProdutoExterno, vincularProdutoLocal, atualizar, deletar };

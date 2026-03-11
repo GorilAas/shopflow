@@ -23,6 +23,13 @@ const criar = async ({ nomeCliente, email, endereco, formaPagamento, itens }) =>
   });
 };
 
+const buscarTodos = async () => {
+  return prisma.pedido.findMany({
+    include: { itensPedido: true, historicos: true },
+    orderBy: { criadoEm: 'desc' },
+  });
+};
+
 const buscarPorId = async (id) => {
   return prisma.pedido.findUnique({
     where: { id },
@@ -41,4 +48,16 @@ const atualizarStatus = async (id, status) => {
   });
 };
 
-export default { criar, buscarPorId, atualizarStatus };
+const atualizar = async (id, dados) => {
+  return prisma.pedido.update({
+    where: { id },
+    data: dados,
+    include: { itensPedido: true, historicos: true },
+  });
+};
+
+const deletar = async (id) => {
+  return prisma.pedido.delete({ where: { id } });
+};
+
+export default { criar, buscarTodos, buscarPorId, atualizarStatus, atualizar, deletar };

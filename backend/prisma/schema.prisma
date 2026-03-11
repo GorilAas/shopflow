@@ -20,7 +20,7 @@ model ProdutoLocal {
 
   itensPedido   ItemPedido[]
   movimentacoes MovimentacaoEstoque[]
-  anuncio       Anuncio?
+  anuncios      Anuncio[]
   
   @@map("produtos")
 }
@@ -36,7 +36,7 @@ model Anuncio {
   importadoEm  DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  produtoLocalId Int?  @unique
+  produtoLocalId Int?
   produtoLocal   ProdutoLocal? @relation(fields: [produtoLocalId], references: [id])
 
   @@map("anuncios")
@@ -65,7 +65,7 @@ model HistoricoStatusPedido {
   criadoEm    DateTime @default(now())
 
   pedidoId    Int
-  pedido      Pedido @relation(fields: [pedidoId], references: [id])
+  pedido      Pedido @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
 
   @@map("historico_status_pedido")
 }
@@ -77,7 +77,7 @@ model ItemPedido {
   nomeProduto String
 
   pedidoId    Int
-  pedido      Pedido   @relation(fields: [pedidoId], references: [id])
+  pedido      Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
 
   produtoId   Int
   produto     ProdutoLocal  @relation(fields: [produtoId], references: [id])

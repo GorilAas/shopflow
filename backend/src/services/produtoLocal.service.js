@@ -1,3 +1,4 @@
+import movimentacaoRepository from '../repositories/movimentacao.repository.js';
 import produtoLocalRepository from '../repositories/produtoLocal.repository.js';
 
 const validar = ({ nome, descricao, preco, estoque }) => {
@@ -14,7 +15,18 @@ const validar = ({ nome, descricao, preco, estoque }) => {
 
 const criar = async (dados) => {
   validar(dados);
-  return produtoLocalRepository.criar(dados);
+  const produto = await produtoLocalRepository.criar(dados);
+
+  if (dados.estoque > 0) {
+    await movimentacaoRepository.criar({
+      tipo: 'ENTRADA',
+      quantidade: dados.estoque,
+      motivo: 'Estoque inicial',
+      produtoId: produto.id,
+    });
+  }
+
+  return produto;
 };
 
 const buscarTodos = async () => {
@@ -30,7 +42,20 @@ const buscarPorId = async (id) => {
 };
 
 const atualizar = async (id, dados) => {
-  await buscarPorId(id);
+  const produtoAtual = await buscarPorId(id);
+
+  if (dados.estoque !== undefined && dados.estoque !== produtoAtual.estoque) {
+    const diferenca = dados.estoque - produtoAtual.estoque;
+    const tipo = diferenca > 0 ? 'ENTRADA' : 'SAIDA';
+    
+    await movimentacaoRepository.criar({
+      tipo,
+      quantidade: Math.abs(diferenca),
+      motivo: 'Ajuste manual de estoque',
+      produtoId: id,
+    });
+  }
+
   return produtoLocalRepository.atualizar(id, dados);
 };
 

@@ -16,11 +16,24 @@ const buscarUm = async (req, res) => {
 };
 
 const vincularProdutoLocal = async (req, res) => {
+  const idRecebido = req.body.produtoLocalId;
+  const produtoLocalId = idRecebido ? parseInt(idRecebido) : null;
+  
   const anuncio = await anuncioService.vincularProdutoLocal(
     parseInt(req.params.id),
-    parseInt(req.body.produtoLocalId)
+    produtoLocalId
   );
   res.json(anuncio);
 };
 
-export default { importar, listar, buscarUm, vincularProdutoLocal };
+const atualizar = async (req, res) => {
+  const anuncio = await anuncioService.atualizar(parseInt(req.params.id), req.body);
+  res.json(anuncio);
+};
+
+const deletar = async (req, res) => {
+  await anuncioService.deletar(parseInt(req.params.id));
+  res.status(204).end();
+};
+
+export default { importar, listar, buscarUm, vincularProdutoLocal, atualizar, deletar };
